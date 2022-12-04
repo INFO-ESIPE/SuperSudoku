@@ -11,6 +11,13 @@ struct SuperSudoku {
 }; 
 
 
+struct SlotLocation {
+  int x1; /* Position x de la cellule 9x9*/
+  int y1; /* Position y de la cellule 9x9*/
+  int x2; /* Position x de la case dans la cellule*/
+  int y2; /* Position y de la case dans la cellule*/
+};
+
 int gridOffset(int x1, int y1, int x2, int y2);
 int isSlotCompatibleInGrid(SudokuGrid grid, int x1, int y1, int x2, int y2, int value);
 int playOnGrid(struct SuperSudoku grids, int x1, int y1, int x2, int y2, int value);
