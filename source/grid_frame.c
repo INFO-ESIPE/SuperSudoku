@@ -28,6 +28,35 @@ void generateGridFrame(struct SuperSudoku grids)
     }
 }
 
+/*
+    Prend en argument des coordonées x y sur la fenêtre et modifie selected_value avec la valeur choisie par l'utilisateur
+    Renvoi 1 si la fonction a réussie et 0 sinon
+ */
+int getSlotChoice(int mouseX, int mouseY, int* selected_value)
+{
+    int i,j, k;
+        /*MLV_draw_rectangle(MARGIN_LEFT*2 + SLOT_SIZE*9, MARGIN_TOP + SLOT_SIZE*3, SLOT_SIZE*3, SLOT_SIZE*3, ORANGE);*/
+
+    if(currentSelectedSlotIsEmpty()) return FALSE;
+    k = 1;
+    for(i = 0; i < 3; i++)
+        for(j = 0; j < 3; j++)
+        {
+            if(
+                mouseX > MARGIN_LEFT*2 + SLOT_SIZE*9 + (j*SLOT_SIZE) && mouseX < MARGIN_LEFT*2 + SLOT_SIZE*9 + ((j+1)*SLOT_SIZE) &&
+                mouseY > MARGIN_TOP + SLOT_SIZE*3 + (i*SLOT_SIZE) && mouseY < MARGIN_TOP + SLOT_SIZE*3 + ((i+1)*SLOT_SIZE)
+            )
+            {
+                *selected_value = k;
+                return TRUE;
+            }
+            k++;
+
+        }
+
+    return FALSE;
+}
+
 /* 
     Prend en argument des coordonées x y sur la fenêtre et modifie SlotLocation avec le numéro de la cellule et de la case
     Renvoi 1 si la fonction a réussi et 0 sinon
@@ -77,10 +106,12 @@ void startListenMouse(struct SuperSudoku grids)
 /*
     Fonction permettant de gérer le clique de la souris
 */
+/*TODO : Placer cette fonction dans mouse_listener.c*/
 void* mouseClick(void* args)
 {
     int mouseX;
     int mouseY;
+    int selected_value;
     struct SlotLocation slot;
     struct SuperSudoku *grids = args;
     SudokuGrid forbiddenGrid = grids->forbiddenGrid;
@@ -88,7 +119,8 @@ void* mouseClick(void* args)
     while(1)
     {
         MLV_wait_mouse(&mouseX, &mouseY); /* Fonction bloquante qui se débloque au clique*/
-        if(getSlotFromCoordinates(mouseX, mouseY, &slot)) /* On récupère la case à partir des coordonées*/
+
+        if(getSlotFromCoordinates(mouseX, mouseY, &slot)) /* On récupère la case à partir des coordonées de la souris*/
         {
             if(forbiddenGrid[gridOffset(slot.x1,slot.y1,slot.x2,slot.y2)] == 0) /* Si cette case n'a pas de valeur par défaut alors ont peut la selectionner */
             {
@@ -96,9 +128,23 @@ void* mouseClick(void* args)
             }
             else
             {
-                /*Retirer la selection*/
-                emptyCurrentSelectedSlot();
+                emptyCurrentSelectedSlot(); /*Retirer la selection*/
             }
+            
+        } else if(getSlotChoice(mouseX, mouseY, &selected_value))  /*On vérifie que l'utilisateur a cliqué sur la grille de séléction*/
+        {
+            printf("Value selected : %d\n", selected_value);
+            /*Si l'utilisateur choisi un numéro*/
+
+            /* On  tente de le placer dans la grille*/
+            playOnGrid(grids, currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x2, currentSelectedSlot.y2, selected_value);
+
+            /* On enlève la selection*/
+            emptyCurrentSelectedSlot();
+
+        } else /* Sinon l'utilisateur a cliqué dans le vide*/
+        {
+
         }
 
     }
@@ -290,3 +336,5 @@ int currentSelectedSlotIsEmpty()
         return TRUE;
     return FALSE;
 }
+
+

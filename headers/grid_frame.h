@@ -51,6 +51,7 @@ void startListenMouse(struct SuperSudoku grids);
 void drawMainGrid(struct SuperSudoku grids);
 int currentSelectedSlotIsEmpty();
 void emptyCurrentSelectedSlot();
+int getSlotChoice(int mouseX, int mouseY, int* selected_value);
 
 
 #endif
