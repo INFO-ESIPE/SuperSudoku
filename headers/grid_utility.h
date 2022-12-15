@@ -10,7 +10,6 @@ struct SuperSudoku {
   SudokuGrid forbiddenGrid; /* Contient les endroits où il est impossible de jouer (les valeurs par défaut à la génération de la grille)*/
 }; 
 
-
 struct SlotLocation {
   int x1; /* Position x de la cellule 9x9*/
   int y1; /* Position y de la cellule 9x9*/
@@ -20,6 +19,10 @@ struct SlotLocation {
 
 int gridOffset(int x1, int y1, int x2, int y2);
 int isSlotCompatibleInGrid(SudokuGrid grid, int x1, int y1, int x2, int y2, int value);
-int playOnGrid(struct SuperSudoku grids, int x1, int y1, int x2, int y2, int value);
+int playOnGrid(SudokuGrid gameGrid, SudokuGrid forbiddenGrid, int x1, int y1, int x2, int y2, int value);
+void consolePrintMainGrid(SudokuGrid grid);
+int isGridCorrect(SudokuGrid gameGrid);
+int isGridFull(SudokuGrid gameGrid);
+
 
 #endif

@@ -4,8 +4,8 @@
 #include "grid_utility.h"
 
 struct SuperSudoku generateMainGrid();
+struct SuperSudoku generateMainGridFromFile(char* filePath);
 void generateSubGrid(struct SuperSudoku grids, int subGridX, int subGridY);
-void consolePrintMainGrid(SudokuGrid grid);
 void freeGrids(struct SuperSudoku grids);
 
 #endif

@@ -4,15 +4,12 @@
 #include "../headers/grid_frame.h"
 
 
-/* Variable permettant de dire si oui ou non on dessine la grille de séléction de numéro */
-int drawNumSelect = FALSE;
-struct SlotLocation currentSelectedSlot = {-1,-1,-1,-1};
+int drawNumSelect = FALSE; /* Variable permettant de dire si oui ou non on dessine la grille de séléction de numéro */
+int action = ACTION_EMPTY; /*Représente l'action en cours sur une partie de sudoku*/
 
 /* Fonction permettant de générer la fenêtre contenant la grille de sudoku*/
 void generateGridFrame(struct SuperSudoku grids)
 {
-    int action = ACTION_EMPTY;
-
     MLV_create_window(GAME_NAME, "../resources/Sudoku.png", WIN_WIDTH, WIN_HEIGHT); /* Création de la fenêtre*/
     startListenMouse(grids);  /*Ecoute le clique de la souris*/
     startDrawUpdate(grids); /* On actualise la grid en temps réel en fonction de la modification des données dans stockés dans SuperSoduku*/
@@ -24,6 +21,9 @@ void generateGridFrame(struct SuperSudoku grids)
         if(action == ACTION_EMPTY)
         {
             MLV_wait_milliseconds(WAIT_TIME_MILLISEC);
+            /*
+            if(isGridFull(grids.gameGrid)) {}
+            */
         }
     }
 }
@@ -35,9 +35,7 @@ void generateGridFrame(struct SuperSudoku grids)
 int getSlotChoice(int mouseX, int mouseY, int* selected_value)
 {
     int i,j, k;
-        /*MLV_draw_rectangle(MARGIN_LEFT*2 + SLOT_SIZE*9, MARGIN_TOP + SLOT_SIZE*3, SLOT_SIZE*3, SLOT_SIZE*3, ORANGE);*/
-
-    if(currentSelectedSlotIsEmpty()) return FALSE;
+    if(slotIsEmpty(getCurrentSelectedSlot())) return FALSE;
     k = 1;
     for(i = 0; i < 3; i++)
         for(j = 0; j < 3; j++)
@@ -45,15 +43,12 @@ int getSlotChoice(int mouseX, int mouseY, int* selected_value)
             if(
                 mouseX > MARGIN_LEFT*2 + SLOT_SIZE*9 + (j*SLOT_SIZE) && mouseX < MARGIN_LEFT*2 + SLOT_SIZE*9 + ((j+1)*SLOT_SIZE) &&
                 mouseY > MARGIN_TOP + SLOT_SIZE*3 + (i*SLOT_SIZE) && mouseY < MARGIN_TOP + SLOT_SIZE*3 + ((i+1)*SLOT_SIZE)
-            )
-            {
+            ) {
                 *selected_value = k;
                 return TRUE;
             }
             k++;
-
         }
-
     return FALSE;
 }
 
@@ -95,71 +90,12 @@ int getSlotFromCoordinates(int x, int y, struct SlotLocation *slot)
     return 0;
 }
 
-/* Fonction permettant d'activer l'écoute de la souris avec un thread*/
-void startListenMouse(struct SuperSudoku grids)
-{
-    pthread_t threadMouseID;
-    pthread_create(&threadMouseID, NULL, &mouseClick, &grids);
-
-}
-
-/*
-    Fonction permettant de gérer le clique de la souris
-*/
-/*TODO : Placer cette fonction dans mouse_listener.c*/
-void* mouseClick(void* args)
-{
-    int mouseX;
-    int mouseY;
-    int selected_value;
-    struct SlotLocation slot;
-    struct SuperSudoku *grids = args;
-    SudokuGrid forbiddenGrid = grids->forbiddenGrid;
-
-    while(1)
-    {
-        MLV_wait_mouse(&mouseX, &mouseY); /* Fonction bloquante qui se débloque au clique*/
-
-        if(getSlotFromCoordinates(mouseX, mouseY, &slot)) /* On récupère la case à partir des coordonées de la souris*/
-        {
-            if(forbiddenGrid[gridOffset(slot.x1,slot.y1,slot.x2,slot.y2)] == 0) /* Si cette case n'a pas de valeur par défaut alors ont peut la selectionner */
-            {
-                currentSelectedSlot = slot; /*On active la séléction*/
-            }
-            else
-            {
-                emptyCurrentSelectedSlot(); /*Retirer la selection*/
-            }
-            
-        } else if(getSlotChoice(mouseX, mouseY, &selected_value))  /*On vérifie que l'utilisateur a cliqué sur la grille de séléction*/
-        {
-            printf("Value selected : %d\n", selected_value);
-            /*Si l'utilisateur choisi un numéro*/
-
-            /* On  tente de le placer dans la grille*/
-            playOnGrid(grids, currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x2, currentSelectedSlot.y2, selected_value);
-
-            /* On enlève la selection*/
-            emptyCurrentSelectedSlot();
-
-        } else /* Sinon l'utilisateur a cliqué dans le vide*/
-        {
-
-        }
-
-    }
-    pthread_exit(NULL);
-
-}
-
 /*Fonction commençant le thread d'actualisation de l'affichage*/
 void startDrawUpdate(struct SuperSudoku grids)
 {
     pthread_t threadDrawID;
     pthread_create(&threadDrawID, NULL, &updateDraw, &grids);
 }
-
-
 
 /*Cette fonction met à jour l'affichage en fonction des données envoyé dedans*/
 void* updateDraw(void* args)
@@ -168,6 +104,8 @@ void* updateDraw(void* args)
     struct SuperSudoku *grids = args;
     SudokuGrid gameGrid = grids->gameGrid;
     SudokuGrid forbiddenGrid = grids->forbiddenGrid;
+    struct SlotLocation currentSelectedSlot = getCurrentSelectedSlot();
+    struct SlotLocation currentOverSlot; 
 
     /* Valeurs temporaire pour remplir le tableau*/
     int i, j, k, l;
@@ -175,9 +113,11 @@ void* updateDraw(void* args)
     char tmp_slot_char[255];
     MLV_Color num_color = BLACK;
 
+
+
     /* Valeurs pour la surbrillance de la case séléctionnée*/
     int tmp_slot_sur_X, tmp_slot_sur_Y, tmp_slot_sur_Width, tmp_slot_sur_Height;
-
+    int over_slot_X, over_slot_Y, over_slot_Width, over_slot_Height;
 
     /* Chargement d'une nouvelle police d'écriture*/
     /* TODO : Le fichier .ttf ne charge pas */
@@ -185,8 +125,11 @@ void* updateDraw(void* args)
 
 
     /* Actualisation de l'affichage en temps réel avec les données des grilles */
-    while(1)
+    while(1 && action != ACTION_END)
     {
+
+        currentSelectedSlot = getCurrentSelectedSlot();
+
         /*--------Section dessin de la grille principale--------*/
         /* Clear l'affichage */
         MLV_draw_filled_rectangle(0, 0, WIN_WIDTH, WIN_HEIGHT, WHITE);
@@ -255,14 +198,27 @@ void* updateDraw(void* args)
 
 
 
+
+        /*On met en surbrillance les cases survolés*/
+        if(getCurrentOverSlotLocation(&currentOverSlot) &&  /*On vérifie si on survole bien une case  */
+        forbiddenGrid[gridOffset(currentOverSlot.x1, currentOverSlot.y1, currentOverSlot.x2, currentOverSlot.y2)] == 0) /*Et on vérifie si c'est une case jouable*/
+        {
+            printf("%d,%d,%d,%d\n",currentOverSlot.x1, currentOverSlot.y1, currentOverSlot.x2, currentOverSlot.y2);
+            over_slot_X = MARGIN_LEFT + (currentOverSlot.y1*SLOT_SIZE*3) + (currentOverSlot.y1*SLOT_SIZE);
+            over_slot_Y = MARGIN_TOP + (currentOverSlot.x1*SLOT_SIZE*3) + (currentOverSlot.x2*SLOT_SIZE);
+            over_slot_Width = SLOT_SIZE+1;
+            over_slot_Hidth = SLOT_SIZE+1;
+
+        }
+
         /*--------Section dessin de la grille de séléction--------*/
-        if(!currentSelectedSlotIsEmpty()) /* On vérifie que le joueur a séléctionné une case*/
+        if(!slotIsEmpty(currentSelectedSlot)) /* On vérifie que le joueur a séléctionné une case*/
         {
             /* On met en surbrillance la case séléctionnée*/
             MLV_draw_rectangle(tmp_slot_sur_X, tmp_slot_sur_Y, tmp_slot_sur_Width, tmp_slot_sur_Height, ORANGE);
             MLV_draw_rectangle(tmp_slot_sur_X-1, tmp_slot_sur_Y-1, tmp_slot_sur_Width+2, tmp_slot_sur_Height+2, ORANGE);
             
-            
+
             /* On affiche la grille de séléction*/
 
             k = 1; /*Compteur pour afficher les choix*/
@@ -302,39 +258,31 @@ void* updateDraw(void* args)
             /* Dessin du contour de la grille*/
             MLV_draw_rectangle(MARGIN_LEFT*2 + SLOT_SIZE*9, MARGIN_TOP + SLOT_SIZE*3, SLOT_SIZE*3, SLOT_SIZE*3, ORANGE);
             MLV_draw_rectangle(MARGIN_LEFT*2 + SLOT_SIZE*9 -1, MARGIN_TOP + SLOT_SIZE*3 -1, SLOT_SIZE*3+2, SLOT_SIZE*3+2, ORANGE);
-
         }
-
-
-
-
-
+        
 
         /* On actualise l'affichage avec les dernières modifications*/
         MLV_actualise_window();
     }
 
     /* On libère la mémoire prise par la font et on finit le thread*/
-    MLV_free_font(font);
+    /*MLV_free_font(font);*/
     pthread_exit(NULL);
     return 0;
 }
 
-/* Fonction permettant de dire que l'utilisateur n'a aucune séléction*/
-void emptyCurrentSelectedSlot()
+
+
+/*Fonction permettant de récupérer l'action en cours sur la fenêtre*/
+int getCurrentAction()
 {
-    currentSelectedSlot.x1 = -1;
-    currentSelectedSlot.y1 = -1;
-    currentSelectedSlot.x2 = -1;
-    currentSelectedSlot.y2 = -1;
+    return action;
 }
 
-/* Fonction permettant de vérifer si l'utilisateur a séléctionné une case */
-int currentSelectedSlotIsEmpty()
+/*Fonction permettant de libérer la mémoire utilisée par la fenêtre*/
+void freeFrame()
 {
-    if(currentSelectedSlot.x1 == -1 || currentSelectedSlot.y1 == -1 || currentSelectedSlot.x2 == -1 || currentSelectedSlot.y2 == -1)
-        return TRUE;
-    return FALSE;
+    action = ACTION_END;
+    freeListener();
+    MLV_free_window();
 }
-
-

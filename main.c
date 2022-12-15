@@ -11,53 +11,84 @@
 #include "headers/grid_generator.h"
 #include "headers/grid_utility.h"
 
-/* Headers permettant de gérer l'affichage graphique*/
+/* Header permettant de gérer l'affichage graphique*/
 #include "headers/grid_frame.h"
 
+/* Header permettant de gérer les actions de l'utilisateur avec sa souris*/
+
+/* Permet de récupérer les signaux*/
+#include <signal.h>
+#include <unistd.h>
+
+#define NO_FILE "NO_FILE_PATH"
 
 
-/* On prépare la partie en mémoire*/
-void prepareGrid()
-{
-
-    /* Fonction pour générer une grille aléatoire et l'afficher à la console*/
-    
-    struct SuperSudoku grids = generateMainGrid();
-    printf("\n       Grille de départ\n");
-    consolePrintMainGrid(grids.gameGrid);
-
-    printf("\n       Grille d'interdits\n");
-    consolePrintMainGrid(grids.forbiddenGrid);
-    
+struct SuperSudoku mainSuperSudoku;
 
 
-    /* Gestion de l'affichage graphique */
-    generateGridFrame(grids);
-
-        
-
-
-    /*
-        int success = playOnGrid(grids, 0, 0, 0, 0, 2);
-        printf("Succes : %d\n", success);
-        consolePrintMainGrid(grids.gameGrid);
-    */
-
-    
-}
-
-
-
+void freeMemory();
+void prepareGrid();
+void printUsage(char* exName);
 
 /* Fonction main du programme*/
 int main(int argc, char* argv[])
 {
 	srand(time(NULL)); /* Permet de gérer l'aléatoire pour les besoins futurs du programme*/
+    signal(SIGINT, freeMemory); /*Permet de finir le programme proprement quand un signal SIGINT est envoyé par l'utilisateur*/
 
 
-    prepareGrid(); /* Permet de préparer la grille proprement (données & affichage graphique)*/
+    /* Vérification des arguments du programme*/
+    if(argc == 1) {
+        prepareGrid(NO_FILE); /* Permet de préparer la grille proprement (données & affichage graphique)*/
+    }
+    else if(argc == 3) {
+        if(argv[1][0] == '-') {
+            if(argv[1][1] == 'g') {
+                prepareGrid(argv[2]); /* Permet de préparer la grille proprement à partir d'un fichier (données & affichage graphique)*/
+            } else printUsage(argv[0]);
+        } else printUsage(argv[0]);   
+    }else printUsage(argv[0]);
     
-
+    
     /* Fin du programme */
     return EXIT_SUCCESS;
+}
+
+/*Fonction expliquant à l'utilisateur comment utiliser le programme*/
+void printUsage(char* exName)
+{
+    printf("Usage & options:\n");
+    printf("%s                       Start sudoku with random grid.\n",exName);
+    printf("%s -g <gridFilePath>     Start sudoku with grid specified in file gridFilePath.\n", exName);
+    exit(EXIT_FAILURE);
+}
+
+/* On prépare la partie en mémoire*/
+void prepareGrid(char* filePath)
+{
+    /* On vérifie si un fichier de grille a été utilisé en argument*/
+    if(!strcmp(filePath, NO_FILE)) 
+        mainSuperSudoku = generateMainGrid(); /* Fonction pour générer une grille aléatoire et l'afficher à la console*/
+    else 
+        mainSuperSudoku = generateMainGridFromFile(filePath); /* Fonction pour générer une grille à partir d'un fichier et l'afficher à la console*/
+
+    printf("\n       Grille de départ\n");
+    consolePrintMainGrid(mainSuperSudoku.gameGrid);
+
+    printf("\n       Grille d'interdits\n");
+    consolePrintMainGrid(mainSuperSudoku.forbiddenGrid);
+    
+    /* Gestion de l'affichage graphique */
+    generateGridFrame(mainSuperSudoku); /*fonction bloquante*/
+}
+
+/*Libère la mémoire utilisée durant le programme*/
+void freeMemory()
+{
+    printf("End of sudoku\n");
+    freeGrids(mainSuperSudoku);
+    printf("freeGrids()\n");
+    freeFrame();
+    printf("freeFrame()\n");
+
 }
