@@ -22,12 +22,10 @@
 
 #define NO_FILE "NO_FILE_PATH"
 
-
 struct SuperSudoku mainSuperSudoku;
 
-
 void freeMemory();
-void prepareGrid();
+void prepareGame(char* filePath);
 void printUsage(char* exName);
 
 /* Fonction main du programme*/
@@ -35,21 +33,18 @@ int main(int argc, char* argv[])
 {
 	srand(time(NULL)); /* Permet de gérer l'aléatoire pour les besoins futurs du programme*/
     signal(SIGINT, freeMemory); /*Permet de finir le programme proprement quand un signal SIGINT est envoyé par l'utilisateur*/
-
-
     /* Vérification des arguments du programme*/
     if(argc == 1) {
-        prepareGrid(NO_FILE); /* Permet de préparer la grille proprement (données & affichage graphique)*/
+        prepareGame(NO_FILE); /* Permet de préparer la grille proprement (données & affichage graphique)*/
     }
     else if(argc == 3) {
         if(argv[1][0] == '-') {
             if(argv[1][1] == 'g') {
-                prepareGrid(argv[2]); /* Permet de préparer la grille proprement à partir d'un fichier (données & affichage graphique)*/
+                prepareGame(argv[2]); /* Permet de préparer la grille proprement à partir d'un fichier (données & affichage graphique)*/
             } else printUsage(argv[0]);
         } else printUsage(argv[0]);   
     }else printUsage(argv[0]);
-    
-    
+        
     /* Fin du programme */
     return EXIT_SUCCESS;
 }
@@ -64,13 +59,13 @@ void printUsage(char* exName)
 }
 
 /* On prépare la partie en mémoire*/
-void prepareGrid(char* filePath)
+void prepareGame(char* filePath)
 {
     /* On vérifie si un fichier de grille a été utilisé en argument*/
-    if(!strcmp(filePath, NO_FILE)) 
-        mainSuperSudoku = generateMainGrid(); /* Fonction pour générer une grille aléatoire et l'afficher à la console*/
-    else 
-        mainSuperSudoku = generateMainGridFromFile(filePath); /* Fonction pour générer une grille à partir d'un fichier et l'afficher à la console*/
+    if(!strcmp(filePath, NO_FILE)) mainSuperSudoku = generateMainGrid(); /* Fonction pour générer une grille aléatoire */
+    else  mainSuperSudoku = generateMainGridFromFile(filePath); /* Fonction pour générer une grille à partir d'un fichier*/
+    
+    /* startGame(); Lancement de la partie*/
 
     printf("\n       Grille de départ\n");
     consolePrintMainGrid(mainSuperSudoku.gameGrid);
@@ -78,6 +73,7 @@ void prepareGrid(char* filePath)
     printf("\n       Grille d'interdits\n");
     consolePrintMainGrid(mainSuperSudoku.forbiddenGrid);
     
+
     /* Gestion de l'affichage graphique */
     generateGridFrame(mainSuperSudoku); /*fonction bloquante*/
 }

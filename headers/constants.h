@@ -1,4 +1,3 @@
-#define TEST "HI\n"
 
 #define NB_SUBGRID 9
 #define NB_SLOT_SUBGRID 9

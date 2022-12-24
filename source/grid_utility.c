@@ -1,8 +1,29 @@
+/*
+	Programmation C - TP7
+	Max Ducoudré - INFO1
+    Fonctions permettant de gérer la grille
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "../headers/grid_utility.h"
 #include "../headers/constants.h"
+
+/* Thread pour le timer*/
+#include <pthread.h>
+
+
+struct Timer getTimer()
+{
+    struct Timer timer;
+    timer.minutes = 1;
+    timer.seconds = 1;
+    timer.milliseconds = 1;
+    
+    return timer;
+}
 
 /* 
     La grille de sudoku étant en 1 dimension dans la mémoire, il est possible grace à cette fonction de récupérer une case dans une cellule en 4D
@@ -66,14 +87,21 @@ int playOnGrid(SudokuGrid gameGrid, SudokuGrid forbiddenGrid, int x1, int y1, in
     printf("Try to play %d in slot (%d,%d,%d,%d)\n", value, x1, y1, x2, y2);
     printf("gameGrid(%d), forbiddenGrid(%d)\n", gameGrid[gridOffset(x1,y1,x2,y2)], forbiddenGrid[gridOffset(x1,y1,x2,y2)]);
     */
+    
+    /* Si l'on tente de jouer sur une case avec un chiffre généré par défaut, on annule*/
+    if(forbiddenGrid[gridOffset(x1,y1,x2,y2)] == 1)
+        return FALSE;
+    
+    if(value == 0)
+    {
+        gameGrid[gridOffset(x1,y1,x2,y2)] = value;
+        return TRUE;
+    }
+
     /* Si il n'est pas possible de jouer à cette case d'après les règles du sudoku*/
     if(!isSlotCompatibleInGrid(gameGrid, x1, y1, x2, y2, value))
         return FALSE;
-    
-    /* Si l'on tente de jouer sur une case avec un chiffre généré par défaut, on annule*/
-    if(forbiddenGrid[gridOffset(x1,y2,x2,y2)] == 1)
-        return FALSE;
-    
+
 
     /* Sinon, on change la valeur de la case */
     gameGrid[gridOffset(x1,y1,x2,y2)] = value;

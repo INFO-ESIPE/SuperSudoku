@@ -13,7 +13,7 @@ struct SelectorSlotLocation {
 };
 
 void* mouseClick(void* args);
-void* mouseOver(void *args);
+void mouseOver(void *args);
 void startListenMouse(struct SuperSudoku grids);
 void freeListener();
 
@@ -21,6 +21,6 @@ void emptyCurrentSelectedSlot();
 int slotIsEmpty(struct SlotLocation slotLocation);
 struct SlotLocation getCurrentSelectedSlot();
 
-struct SelectorSlotLocation getCurrentOverSelectorSlot();
+int getCurrentOverSelectorSlot();
 int getCurrentOverSlotLocation(struct SlotLocation *overSlotLocation);
 #endif

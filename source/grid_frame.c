@@ -10,7 +10,7 @@ int action = ACTION_EMPTY; /*Représente l'action en cours sur une partie de sud
 /* Fonction permettant de générer la fenêtre contenant la grille de sudoku*/
 void generateGridFrame(struct SuperSudoku grids)
 {
-    MLV_create_window(GAME_NAME, "../resources/Sudoku.png", WIN_WIDTH, WIN_HEIGHT); /* Création de la fenêtre*/
+    MLV_create_window(GAME_NAME, "resources/Sudoku.png", WIN_WIDTH, WIN_HEIGHT); /* Création de la fenêtre*/
     startListenMouse(grids);  /*Ecoute le clique de la souris*/
     startDrawUpdate(grids); /* On actualise la grid en temps réel en fonction de la modification des données dans stockés dans SuperSoduku*/
 
@@ -21,6 +21,7 @@ void generateGridFrame(struct SuperSudoku grids)
         if(action == ACTION_EMPTY)
         {
             MLV_wait_milliseconds(WAIT_TIME_MILLISEC);
+
             /*
             if(isGridFull(grids.gameGrid)) {}
             */
@@ -36,6 +37,7 @@ int getSlotChoice(int mouseX, int mouseY, int* selected_value)
 {
     int i,j, k;
     if(slotIsEmpty(getCurrentSelectedSlot())) return FALSE;
+    
     k = 1;
     for(i = 0; i < 3; i++)
         for(j = 0; j < 3; j++)
@@ -47,10 +49,17 @@ int getSlotChoice(int mouseX, int mouseY, int* selected_value)
                 *selected_value = k;
                 return TRUE;
             }
+            if(mouseX > MARGIN_LEFT*2 + SLOT_SIZE*10 -1 &&  mouseX < MARGIN_LEFT*2 + SLOT_SIZE*10 -1 + SLOT_SIZE+2 &&
+               mouseY >MARGIN_TOP+ SLOT_SIZE*2 - 10 -1 &&  mouseY < MARGIN_TOP+ SLOT_SIZE*2 - 10 -1 + SLOT_SIZE+2
+            ) {
+                *selected_value = 0;
+                return TRUE;
+            }
             k++;
         }
     return FALSE;
 }
+
 
 /* 
     Prend en argument des coordonées x y sur la fenêtre et modifie SlotLocation avec le numéro de la cellule et de la case
@@ -113,15 +122,13 @@ void* updateDraw(void* args)
     char tmp_slot_char[255];
     MLV_Color num_color = BLACK;
 
-
+    int currentOverSelectorSlot;
 
     /* Valeurs pour la surbrillance de la case séléctionnée*/
     int tmp_slot_sur_X, tmp_slot_sur_Y, tmp_slot_sur_Width, tmp_slot_sur_Height;
-    int over_slot_X, over_slot_Y, over_slot_Width, over_slot_Height;
 
     /* Chargement d'une nouvelle police d'écriture*/
-    /* TODO : Le fichier .ttf ne charge pas */
-    MLV_Font* font /*= MLV_load_font("../resources/Sudoku.ttf" , 20)*/;
+    MLV_Font* font = MLV_load_font("resources/Georgia.ttf" , 20);
 
 
     /* Actualisation de l'affichage en temps réel avec les données des grilles */
@@ -158,31 +165,20 @@ void* updateDraw(void* args)
 
                         MLV_draw_rectangle(tmp_slot_X, tmp_slot_Y, tmp_slot_Width, tmp_slot_Height, BLACK);
 
-                        /*Ajout de la valeure dans la case*/
+                        /*Ajout de la valeur dans la case*/
                         if(gameGrid[gridOffset(i,j,k,l)] != 0)
                         {
                             if(forbiddenGrid[gridOffset(i,j,k,l)] == 1) num_color = GRAY;
                             else num_color = BLACK;
 
                             sprintf(tmp_slot_char, "%d", gameGrid[gridOffset(i,j,k,l)]);
-                            if(0) /* TODO Le fichier de font ne marche pas */
-                            {
-                                MLV_draw_text_with_font(
-                                    tmp_slot_X + (tmp_slot_Width/2), 
-                                    tmp_slot_Y + (tmp_slot_Height/2), 
-                                    tmp_slot_char, 
-                                    font,
-                                    num_color
-                                    );
-                            }
-                            else
-                            {
-                                MLV_draw_text( 
-                                    tmp_slot_X + (tmp_slot_Width/2)-5, 
-                                    tmp_slot_Y + (tmp_slot_Height/2)-5, 
-                                    tmp_slot_char, 
-                                    num_color);
-                            }
+                            MLV_draw_text_with_font(
+                                tmp_slot_X + (tmp_slot_Width/2) - 8, 
+                                tmp_slot_Y + (tmp_slot_Height/2) - 8, 
+                                tmp_slot_char, 
+                                font,
+                                num_color
+                                );
                         }
                     }
 
@@ -196,19 +192,42 @@ void* updateDraw(void* args)
                 SLOT_SIZE*3+1, 
                 BLACK);
 
-
-
-
         /*On met en surbrillance les cases survolés*/
         if(getCurrentOverSlotLocation(&currentOverSlot) &&  /*On vérifie si on survole bien une case  */
         forbiddenGrid[gridOffset(currentOverSlot.x1, currentOverSlot.y1, currentOverSlot.x2, currentOverSlot.y2)] == 0) /*Et on vérifie si c'est une case jouable*/
         {
-            printf("%d,%d,%d,%d\n",currentOverSlot.x1, currentOverSlot.y1, currentOverSlot.x2, currentOverSlot.y2);
-            over_slot_X = MARGIN_LEFT + (currentOverSlot.y1*SLOT_SIZE*3) + (currentOverSlot.y1*SLOT_SIZE);
-            over_slot_Y = MARGIN_TOP + (currentOverSlot.x1*SLOT_SIZE*3) + (currentOverSlot.x2*SLOT_SIZE);
-            over_slot_Width = SLOT_SIZE+1;
-            over_slot_Hidth = SLOT_SIZE+1;
+            /*printf("%d,%d,%d,%d\n",currentOverSlot.x1, currentOverSlot.y1, currentOverSlot.x2, currentOverSlot.y2);*/
+            /*On met en surbrillance les lignes & les colones*/
+            for(i = 0; i < NB_SUBGRID/3; i++) 
+                for(j = 0; j < NB_SUBGRID/3; j++) 
+                    for(k = 0; k < NB_SLOT_SUBGRID/3; k++)
+                        for(l = 0; l < NB_SLOT_SUBGRID/3; l++) {
+                            if((currentOverSlot.x1 == i && currentOverSlot.x2 == k) ||
+                               (currentOverSlot.y1 == j && currentOverSlot.y2 == l))
+                            {
+                                MLV_draw_rectangle(
+                                    MARGIN_LEFT + (j*SLOT_SIZE*3) + (l*SLOT_SIZE),
+                                    MARGIN_TOP + (i*SLOT_SIZE*3) + (k*SLOT_SIZE),
+                                    SLOT_SIZE+1,
+                                    SLOT_SIZE+1, 
+                                    GREEN);
 
+                            }
+                    }
+            /* On met en surbrillance la case survolée*/
+            MLV_draw_rectangle(
+                MARGIN_LEFT + (currentOverSlot.y1*SLOT_SIZE*3) + (currentOverSlot.y2*SLOT_SIZE),
+                MARGIN_TOP + (currentOverSlot.x1*SLOT_SIZE*3) + (currentOverSlot.x2*SLOT_SIZE), 
+                SLOT_SIZE+1, 
+                SLOT_SIZE+1, 
+                GREEN);
+
+            MLV_draw_rectangle(
+                MARGIN_LEFT + (currentOverSlot.y1*SLOT_SIZE*3) + (currentOverSlot.y2*SLOT_SIZE)-1,
+                MARGIN_TOP + (currentOverSlot.x1*SLOT_SIZE*3) + (currentOverSlot.x2*SLOT_SIZE)-1, 
+                SLOT_SIZE+3, 
+                SLOT_SIZE+3, 
+                GREEN);
         }
 
         /*--------Section dessin de la grille de séléction--------*/
@@ -217,7 +236,6 @@ void* updateDraw(void* args)
             /* On met en surbrillance la case séléctionnée*/
             MLV_draw_rectangle(tmp_slot_sur_X, tmp_slot_sur_Y, tmp_slot_sur_Width, tmp_slot_sur_Height, ORANGE);
             MLV_draw_rectangle(tmp_slot_sur_X-1, tmp_slot_sur_Y-1, tmp_slot_sur_Width+2, tmp_slot_sur_Height+2, ORANGE);
-            
 
             /* On affiche la grille de séléction*/
 
@@ -234,32 +252,71 @@ void* updateDraw(void* args)
                         BLACK);
 
                     sprintf(tmp_slot_char, "%d", k);
-                    if(0) /* TODO Le fichier de font ne marche pas */
-                        {
-                            MLV_draw_text_with_font(
-                                 MARGIN_LEFT*2 + SLOT_SIZE*9 + i*SLOT_SIZE + (SLOT_SIZE/2)-5, 
-                                MARGIN_TOP + SLOT_SIZE*3 + j*SLOT_SIZE + (SLOT_SIZE/2)-5, 
-                                tmp_slot_char, 
-                                font,
-                                BLACK
-                                );
-                        }
-                        else
-                        {
-                            MLV_draw_text( 
-                                MARGIN_LEFT*2 + SLOT_SIZE*9 + i*SLOT_SIZE + (SLOT_SIZE/2)-5, 
-                                MARGIN_TOP + SLOT_SIZE*3 + j*SLOT_SIZE + (SLOT_SIZE/2)-5, 
-                                tmp_slot_char, 
-                                BLACK);
-                        }
+                        
+                    MLV_draw_text_with_font(
+                            MARGIN_LEFT*2 + SLOT_SIZE*9 + i*SLOT_SIZE + (SLOT_SIZE/2)-5, 
+                        MARGIN_TOP + SLOT_SIZE*3 + j*SLOT_SIZE + (SLOT_SIZE/2)-5, 
+                        tmp_slot_char, 
+                        font,
+                        BLACK
+                        );
+
                     k++;
                 }
 
             /* Dessin du contour de la grille*/
             MLV_draw_rectangle(MARGIN_LEFT*2 + SLOT_SIZE*9, MARGIN_TOP + SLOT_SIZE*3, SLOT_SIZE*3, SLOT_SIZE*3, ORANGE);
             MLV_draw_rectangle(MARGIN_LEFT*2 + SLOT_SIZE*9 -1, MARGIN_TOP + SLOT_SIZE*3 -1, SLOT_SIZE*3+2, SLOT_SIZE*3+2, ORANGE);
+
+            /*Dessin du bouton de cancel*/
+            MLV_draw_rectangle(
+                MARGIN_LEFT*2 + SLOT_SIZE*10, 
+                MARGIN_TOP+ SLOT_SIZE*2 - 10, 
+                SLOT_SIZE,
+                SLOT_SIZE, 
+                RED);
+            MLV_draw_rectangle(
+                MARGIN_LEFT*2 + SLOT_SIZE*10 -1, 
+                MARGIN_TOP+ SLOT_SIZE*2 - 10 -1, 
+                SLOT_SIZE+2,
+                SLOT_SIZE+2, 
+                RED);
+            MLV_draw_text( 
+                MARGIN_LEFT*2 + SLOT_SIZE*10 -1 + SLOT_SIZE/2 - 5, 
+                MARGIN_TOP+ SLOT_SIZE*2 - 10 -1 + SLOT_SIZE/2 - 5, 
+                "X",
+                RED);
+
+            /*On met en surbrillance le bouton survolé du selecteur*/
+            currentOverSelectorSlot = getCurrentOverSelectorSlot();
+            if(currentOverSelectorSlot != -1)
+            {
+                for(j = 0; j < 3; j++)
+                    for(i = 0; i < 3; i++)
+                    {
+                        if(j+i*3 == currentOverSelectorSlot-1)
+                        {
+                            if(isSlotCompatibleInGrid(gameGrid, currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x2, currentSelectedSlot.y2, currentOverSelectorSlot))
+                                num_color = GREEN;
+                            else 
+                                num_color = RED;
+
+                            MLV_draw_rectangle(
+                                MARGIN_LEFT*2 + SLOT_SIZE*9 + j*SLOT_SIZE,
+                                MARGIN_TOP + SLOT_SIZE*3 + i*SLOT_SIZE, 
+                                SLOT_SIZE, 
+                                SLOT_SIZE, 
+                            num_color);
+                            MLV_draw_rectangle(
+                                MARGIN_LEFT*2 + SLOT_SIZE*9 + j*SLOT_SIZE-1,
+                                MARGIN_TOP + SLOT_SIZE*3 + i*SLOT_SIZE-1, 
+                                SLOT_SIZE+2, 
+                                SLOT_SIZE+2, 
+                            num_color);
+                        }
+                    }
+            }
         }
-        
 
         /* On actualise l'affichage avec les dernières modifications*/
         MLV_actualise_window();

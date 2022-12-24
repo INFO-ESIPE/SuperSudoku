@@ -3,32 +3,29 @@
 
 #include "../headers/mouse_listener.h"
 
-
 struct SlotLocation currentSelectedSlot = {-1,-1,-1,-1}; /*Variable contenant la case séléctionnée*/
 
 /* Fonction permettant d'activer l'écoute de la souris avec un thread*/
 void startListenMouse(struct SuperSudoku grids)
 {
     pthread_t threadMouseID;
-    pthread_t threadMouseOverID;
+    /*pthread_t threadMouseOverID;*/
     pthread_create(&threadMouseID, NULL, &mouseClick, &grids);
-    pthread_create(&threadMouseOverID, NULL, &mouseOver, &grids);
-
+   /* pthread_create(&threadMouseOverID, NULL, &mouseOver, &grids);*/
 }
 
 
 /* Fonction permettant de gérer le survol de la souris*/
-void* mouseOver(void *args)
+void mouseOver(void *args)
 {
-    /*
+    
     int mouseX;
     int mouseY;
-    while(1 && getCurrentAction() != ACTION_END) 
+    while(0 && getCurrentAction() != ACTION_END) 
     {
         MLV_get_mouse_position(&mouseX, &mouseY);
-        
     }
-    */
+
 }
 
 /*
@@ -68,16 +65,14 @@ void* mouseClick(void* args)
                 if(playOnGrid(gameGrid, forbiddenGrid, currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x2, currentSelectedSlot.y2, selected_value))
                 {
                     /*Sucess play grid*/
-                    printf("Play (%d,%d,%d,%d) value %d\n", currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x1, currentSelectedSlot.y2, selected_value);
+                    printf("Play (%d,%d,%d,%d) value %d\n", currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x2, currentSelectedSlot.y2, selected_value);
+                    emptyCurrentSelectedSlot();/* On enlève la selection*/
                 }
                 else
                 {
 
                 }
         
-                /* On enlève la selection*/
-                emptyCurrentSelectedSlot();
-
             } else /* Sinon l'utilisateur a cliqué dans le vide*/
             {
 
@@ -136,11 +131,14 @@ int getCurrentOverSlotLocation(struct SlotLocation *overSlotLocation)
 }
 
 
-struct SelectorSlotLocation getCurrentOverSelectorSlot()
+int getCurrentOverSelectorSlot()
 {
-    struct SelectorSlotLocation selectorCoordinates;
-    selectorCoordinates.x = -1;
-    selectorCoordinates.y = -1;
+    int selectorCoordinates;
+    int mouseX, mouseY;
+    MLV_get_mouse_position(&mouseX, &mouseY);
+
+    if(!getSlotChoice(mouseX, mouseY, &selectorCoordinates)) return -1;
+
     return selectorCoordinates;
 }
 

@@ -22,7 +22,6 @@ ${BLD}grid_frame.o: ${SP}grid_frame.c ${SP}grid_utility.c ${SP}mouse_listener.c
 ${BLD}mouse_listener.o: ${SP}mouse_listener.c ${SP}grid_utility.c ${SP}grid_frame.c 
 	${CC} -c ${SP}mouse_listener.c -o ${BLD}mouse_listener.o ${CFLAGS} ${LDFLAGS} 
 
-
 ${BLD}main.o: main.c ${SP}grid_generator.c ${SP}grid_utility.c ${SP}grid_frame.c 
 	${CC} -c main.c -o ${BLD}main.o ${CFLAGS} ${LDFLAGS} 
 

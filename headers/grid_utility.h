@@ -17,12 +17,17 @@ struct SlotLocation {
   int y2; /* Position y de la case dans la cellule*/
 };
 
+struct Timer {
+  int minutes;
+  int seconds;
+  int milliseconds;
+};
+
 int gridOffset(int x1, int y1, int x2, int y2);
 int isSlotCompatibleInGrid(SudokuGrid grid, int x1, int y1, int x2, int y2, int value);
 int playOnGrid(SudokuGrid gameGrid, SudokuGrid forbiddenGrid, int x1, int y1, int x2, int y2, int value);
 void consolePrintMainGrid(SudokuGrid grid);
 int isGridCorrect(SudokuGrid gameGrid);
 int isGridFull(SudokuGrid gameGrid);
-
 
 #endif
