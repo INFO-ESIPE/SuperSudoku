@@ -15,15 +15,35 @@
 #include <pthread.h>
 
 
-struct Timer getTimer()
+/*Fonction permettant de déclencher le début de partie*/
+void startGame()
 {
-    struct Timer timer;
-    timer.minutes = 1;
-    timer.seconds = 1;
-    timer.milliseconds = 1;
-    
-    return timer;
+    startTimer();
 }
+
+/*Fonction permettant de finir la partie en cours*/
+void endGame()
+{
+    endTimer();
+}
+
+/*Fonction permettant de récupérer une chaine de caractère correspondant au timer*/
+void getTimerString(char* buffer)
+{   
+    struct TimerData timer_data = getTimer();
+
+    char secStr[3];
+    char minStr[10];
+
+    if(timer_data.minutes >= 10) sprintf(minStr, "%d", timer_data.minutes);
+    else sprintf(minStr, "0%d", timer_data.minutes);
+
+    if(timer_data.seconds >= 10) sprintf(secStr, "%d", timer_data.seconds);
+    else sprintf(secStr, "0%d", timer_data.seconds);
+
+    sprintf(buffer, "%s:%s", minStr, secStr);
+}
+
 
 /* 
     La grille de sudoku étant en 1 dimension dans la mémoire, il est possible grace à cette fonction de récupérer une case dans une cellule en 4D
@@ -108,6 +128,9 @@ int playOnGrid(SudokuGrid gameGrid, SudokuGrid forbiddenGrid, int x1, int y1, in
 
     consolePrintMainGrid(gameGrid);
     
+    /* On vérifie si la partie est terminée*/
+    if(isGridFull(gameGrid)) endGame();
+
     return TRUE;
 }
 
@@ -129,6 +152,7 @@ int isGridCorrect(SudokuGrid gameGrid)
 int isGridFull(SudokuGrid gameGrid)
 {
     int i;
+    consolePrintMainGrid(gameGrid);
     for(i = 0; i < NB_SLOT_SUBGRID*NB_SLOT_SUBGRID; i++) {
         if(gameGrid[i] == 0) return 0;
     }

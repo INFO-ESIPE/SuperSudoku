@@ -2,6 +2,9 @@
 #define _GRIDUTILITY_
 
 
+/* Permet de gérer le timer */
+#include "timer.h"
+
 typedef int* SudokuGrid; /* Une grille est un tableau d'entier de 9x9 */
 
 /* Structure comportant les élements pour le bon déroulement du jeu*/
@@ -26,6 +29,9 @@ struct Timer {
 int gridOffset(int x1, int y1, int x2, int y2);
 int isSlotCompatibleInGrid(SudokuGrid grid, int x1, int y1, int x2, int y2, int value);
 int playOnGrid(SudokuGrid gameGrid, SudokuGrid forbiddenGrid, int x1, int y1, int x2, int y2, int value);
+void startGame();
+void endGame();
+void getTimerString(char* buffer);
 void consolePrintMainGrid(SudokuGrid grid);
 int isGridCorrect(SudokuGrid gameGrid);
 int isGridFull(SudokuGrid gameGrid);

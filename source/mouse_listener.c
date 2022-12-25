@@ -4,12 +4,15 @@
 #include "../headers/mouse_listener.h"
 
 struct SlotLocation currentSelectedSlot = {-1,-1,-1,-1}; /*Variable contenant la case séléctionnée*/
+struct SuperSudoku grids;
 
 /* Fonction permettant d'activer l'écoute de la souris avec un thread*/
-void startListenMouse(struct SuperSudoku grids)
+void startListenMouse(struct SuperSudoku superGrids)
 {
     pthread_t threadMouseID;
     /*pthread_t threadMouseOverID;*/
+    grids = superGrids;
+
     pthread_create(&threadMouseID, NULL, &mouseClick, &grids);
    /* pthread_create(&threadMouseOverID, NULL, &mouseOver, &grids);*/
 }
@@ -37,9 +40,9 @@ void* mouseClick(void* args)
     int mouseY;
     int selected_value;
     struct SlotLocation slot;
-    struct SuperSudoku *grids = args;
-    SudokuGrid forbiddenGrid = grids->forbiddenGrid;
-    SudokuGrid gameGrid = grids->gameGrid;
+    /*struct SuperSudoku *grids = args;*/
+    SudokuGrid forbiddenGrid = grids.forbiddenGrid;
+    SudokuGrid gameGrid = grids.gameGrid;
 
     /* On écoute la souris tant que le programme tourne*/
     while(1 && getCurrentAction() != ACTION_END) 
@@ -47,7 +50,7 @@ void* mouseClick(void* args)
         MLV_wait_mouse(&mouseX, &mouseY); /* Fonction bloquante qui se débloque au clique*/
         
         /* Gestion de la souris lors du déroulé de la partie*/
-        if(!isGridFull(grids->gameGrid)) /*On vérifie si la grille est pleine pour cela*/
+        if(!isGridFull(gameGrid)) /*On vérifie si la grille est pleine pour cela*/
         {
             if(getSlotFromCoordinates(mouseX, mouseY, &slot)) /* On récupère la case à partir des coordonées de la souris*/
             {
@@ -75,11 +78,12 @@ void* mouseClick(void* args)
         
             } else /* Sinon l'utilisateur a cliqué dans le vide*/
             {
-
+                
             }
 
         } else{
             /* Gestion de la souris lors de la fin de la partie */
+            printf("Click end game\n");
         }
     }
     pthread_exit(NULL);

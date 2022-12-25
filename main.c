@@ -14,7 +14,8 @@
 /* Header permettant de gérer l'affichage graphique*/
 #include "headers/grid_frame.h"
 
-/* Header permettant de gérer les actions de l'utilisateur avec sa souris*/
+
+
 
 /* Permet de récupérer les signaux*/
 #include <signal.h>
@@ -27,23 +28,15 @@ struct SuperSudoku mainSuperSudoku;
 void freeMemory();
 void prepareGame(char* filePath);
 void printUsage(char* exName);
+void checkArguments(int argc, char * argv[]);
 
 /* Fonction main du programme*/
 int main(int argc, char* argv[])
 {
 	srand(time(NULL)); /* Permet de gérer l'aléatoire pour les besoins futurs du programme*/
     signal(SIGINT, freeMemory); /*Permet de finir le programme proprement quand un signal SIGINT est envoyé par l'utilisateur*/
-    /* Vérification des arguments du programme*/
-    if(argc == 1) {
-        prepareGame(NO_FILE); /* Permet de préparer la grille proprement (données & affichage graphique)*/
-    }
-    else if(argc == 3) {
-        if(argv[1][0] == '-') {
-            if(argv[1][1] == 'g') {
-                prepareGame(argv[2]); /* Permet de préparer la grille proprement à partir d'un fichier (données & affichage graphique)*/
-            } else printUsage(argv[0]);
-        } else printUsage(argv[0]);   
-    }else printUsage(argv[0]);
+    checkArguments(argc, argv); /*Fonction permettant de vérifier les options/arguments du programme*/
+        
         
     /* Fin du programme */
     return EXIT_SUCCESS;
@@ -58,6 +51,21 @@ void printUsage(char* exName)
     exit(EXIT_FAILURE);
 }
 
+/* Vérification des arguments du programme*/
+void checkArguments(int argc, char * argv[])
+{
+    if(argc == 1) {
+        prepareGame(NO_FILE); /* Permet de préparer la grille proprement (données & affichage graphique)*/
+    }
+    else if(argc == 3) {
+        if(argv[1][0] == '-') {
+            if(argv[1][1] == 'g') {
+                prepareGame(argv[2]); /* Permet de préparer la grille proprement à partir d'un fichier (données & affichage graphique)*/
+            } else printUsage(argv[0]);
+        } else printUsage(argv[0]);   
+    }else printUsage(argv[0]);
+}
+
 /* On prépare la partie en mémoire*/
 void prepareGame(char* filePath)
 {
@@ -65,8 +73,8 @@ void prepareGame(char* filePath)
     if(!strcmp(filePath, NO_FILE)) mainSuperSudoku = generateMainGrid(); /* Fonction pour générer une grille aléatoire */
     else  mainSuperSudoku = generateMainGridFromFile(filePath); /* Fonction pour générer une grille à partir d'un fichier*/
     
-    /* startGame(); Lancement de la partie*/
-
+    startGame(); /* Lancement de la partie*/
+    
     printf("\n       Grille de départ\n");
     consolePrintMainGrid(mainSuperSudoku.gameGrid);
 

@@ -14,14 +14,15 @@ struct SuperSudoku generateMainGrid()
     struct SuperSudoku superSudoku;
 
     /*Allocation de la mémoire nécéssaire pour la grille de sudoku*/
-    superSudoku.gameGrid = malloc(NB_SLOT_SUBGRID*NB_SUBGRID*sizeof(float*));
-    superSudoku.forbiddenGrid = malloc(NB_SLOT_SUBGRID*NB_SUBGRID*sizeof(float*));
+    superSudoku.gameGrid = malloc(NB_SLOT_SUBGRID*NB_SUBGRID*sizeof(int));
+    superSudoku.forbiddenGrid = malloc(NB_SLOT_SUBGRID*NB_SUBGRID*sizeof(int));
 
     /*Remplissage de la grille*/
     for(i = 0; i < 3; i++) 
         for(j = 0; j < 3; j++) 
             generateSubGrid(superSudoku, i, j);
             
+
     return superSudoku;
 }
 
@@ -34,9 +35,9 @@ struct SuperSudoku generateMainGridFromFile(char* filePath)
     struct SuperSudoku superSudoku;
 
     /*Allocation de la mémoire nécéssaire pour la grille de sudoku*/
-    superSudoku.gameGrid = malloc(NB_SLOT_SUBGRID*NB_SUBGRID*sizeof(float*));
-    superSudoku.forbiddenGrid = malloc(NB_SLOT_SUBGRID*NB_SUBGRID*sizeof(float*));
-
+    superSudoku.gameGrid = malloc(NB_SLOT_SUBGRID*NB_SUBGRID*sizeof(int*));
+    superSudoku.forbiddenGrid = malloc(NB_SLOT_SUBGRID*NB_SUBGRID*sizeof(int*));
+    
     /* Ouverture du fichier de la grille*/
     f = fopen(filePath, "r");
     if (f == NULL){

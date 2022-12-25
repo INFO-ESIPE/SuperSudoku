@@ -16,17 +16,19 @@ void generateGridFrame(struct SuperSudoku grids)
 
     /* On boucle jusqu'à la fin du jeux
     Cette boucle nous permet de récupérer l'action du joueur*/
+    /*
     while (action != ACTION_END)
     {
         if(action == ACTION_EMPTY)
         {
             MLV_wait_milliseconds(WAIT_TIME_MILLISEC);
 
-            /*
+            
             if(isGridFull(grids.gameGrid)) {}
-            */
+            
         }
     }
+    */
 }
 
 /*
@@ -102,17 +104,18 @@ int getSlotFromCoordinates(int x, int y, struct SlotLocation *slot)
 /*Fonction commençant le thread d'actualisation de l'affichage*/
 void startDrawUpdate(struct SuperSudoku grids)
 {
-    pthread_t threadDrawID;
-    pthread_create(&threadDrawID, NULL, &updateDraw, &grids);
+    /*pthread_t threadDrawID;*/
+    /*pthread_create(&threadDrawID, NULL, &updateDraw, &grids);*/
+    updateDraw(grids);
 }
 
 /*Cette fonction met à jour l'affichage en fonction des données envoyé dedans*/
-void* updateDraw(void* args)
+int updateDraw(struct SuperSudoku grids)
 {
     /* Données de la grille*/
-    struct SuperSudoku *grids = args;
-    SudokuGrid gameGrid = grids->gameGrid;
-    SudokuGrid forbiddenGrid = grids->forbiddenGrid;
+    /*struct SuperSudoku *grids = args;*/
+    SudokuGrid gameGrid = grids.gameGrid;
+    SudokuGrid forbiddenGrid = grids.forbiddenGrid;
     struct SlotLocation currentSelectedSlot = getCurrentSelectedSlot();
     struct SlotLocation currentOverSlot; 
 
@@ -121,7 +124,6 @@ void* updateDraw(void* args)
     int tmp_slot_X, tmp_slot_Y, tmp_slot_Width, tmp_slot_Height;
     char tmp_slot_char[255];
     MLV_Color num_color = BLACK;
-
     int currentOverSelectorSlot;
 
     /* Valeurs pour la surbrillance de la case séléctionnée*/
@@ -130,11 +132,45 @@ void* updateDraw(void* args)
     /* Chargement d'une nouvelle police d'écriture*/
     MLV_Font* font = MLV_load_font("resources/Georgia.ttf" , 20);
 
+    /*Variable pour le dessin du timer*/
+    char timer_buffer[255];
+
+
+    /*Initialisation des bouttons*/
+    struct MenuButton scoreButton, autoresolveButton, restartButton, exitButton;
+
+    scoreButton.x = MARGIN_LEFT + (NB_SLOT_SUBGRID+1) * SLOT_SIZE;  
+    scoreButton.y = MARGIN_TOP + (NB_SLOT_SUBGRID-2) * SLOT_SIZE;  
+    scoreButton.width = SLOT_SIZE*2;
+    scoreButton.height = SLOT_SIZE*0.8;
+    scoreButton.color = BLACK;
+    scoreButton.over_color = ORANGE;
+    scoreButton.text = "High scores";
+    scoreButton.font = font;
+
+    autoresolveButton = scoreButton;
+    autoresolveButton.x += SLOT_SIZE*2 + 10;
+    autoresolveButton.text = "Auto resolve";
+
+    restartButton = scoreButton;
+    restartButton.y += SLOT_SIZE*0.8 + 10;
+    restartButton.text = "Restart";
+
+    exitButton = scoreButton;
+    exitButton.x += SLOT_SIZE*2 + 10;
+    exitButton.y += SLOT_SIZE*0.8 + 10;
+    exitButton.text = "Exit";
+
+
+    printf("TEST = %d\n", grids.gameGrid[gridOffset(1,1,1,1)]);
+
+
+
 
     /* Actualisation de l'affichage en temps réel avec les données des grilles */
     while(1 && action != ACTION_END)
     {
-
+        MLV_wait_milliseconds(13);
         currentSelectedSlot = getCurrentSelectedSlot();
 
         /*--------Section dessin de la grille principale--------*/
@@ -166,7 +202,7 @@ void* updateDraw(void* args)
                         MLV_draw_rectangle(tmp_slot_X, tmp_slot_Y, tmp_slot_Width, tmp_slot_Height, BLACK);
 
                         /*Ajout de la valeur dans la case*/
-                        if(gameGrid[gridOffset(i,j,k,l)] != 0)
+                        if(gameGrid[gridOffset(i,j,k,l)] > 0 && gameGrid[gridOffset(i,j,k,l)] <=9)
                         {
                             if(forbiddenGrid[gridOffset(i,j,k,l)] == 1) num_color = GRAY;
                             else num_color = BLACK;
@@ -318,8 +354,34 @@ void* updateDraw(void* args)
             }
         }
 
+
+        /* Dessin du timer */
+        getTimerString(timer_buffer);
+        MLV_draw_text_with_font(
+            MARGIN_LEFT, 
+            MARGIN_TOP/4, 
+            timer_buffer, 
+            font,
+            BLACK);
+
+
+
+        /*Dessin du menu*/
+        /*Scores/autoresolve/restart/fin*/
+        drawButton(scoreButton);
+        drawButton(autoresolveButton);
+        drawButton(exitButton);
+        drawButton(restartButton);
         /* On actualise l'affichage avec les dernières modifications*/
         MLV_actualise_window();
+    }
+
+
+
+    /*Dessin qu'à la fin de la partie*/
+    if(isGridFull(gameGrid))
+    {
+        
     }
 
     /* On libère la mémoire prise par la font et on finit le thread*/
@@ -329,6 +391,35 @@ void* updateDraw(void* args)
 }
 
 
+/*Function permettant de dessiner un bouton*/
+void drawButton(struct MenuButton menuButton)
+{
+
+    int mouseX;
+    int mouseY;
+    MLV_Color draw_color = menuButton.color;
+
+    MLV_get_mouse_position(&mouseX, &mouseY);
+    
+    if(mouseX > menuButton.x && mouseX < menuButton.x+menuButton.width &&
+       mouseY  > menuButton.y && mouseY < menuButton.y+menuButton.height)
+       draw_color = menuButton.over_color;
+
+    MLV_draw_rectangle(
+        menuButton.x,
+        menuButton.y, 
+        menuButton.width, 
+        menuButton.height, 
+        draw_color);
+
+    MLV_draw_text_with_font(
+        menuButton.x+5, 
+        menuButton.y+menuButton.height/4, 
+        menuButton.text, 
+        menuButton.font,
+        menuButton.color);
+    
+}
 
 /*Fonction permettant de récupérer l'action en cours sur la fenêtre*/
 int getCurrentAction()

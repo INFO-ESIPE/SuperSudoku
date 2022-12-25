@@ -42,16 +42,27 @@
 #define ACTION_END_PARTY 1
 #define ACTION_EMPTY 0
 #define ACTION_END -1
-#define WAIT_TIME_MILLISEC 500
+#define WAIT_TIME_MILLISEC 13
 
+struct MenuButton {
+    int x;
+    int y;
+    int width;
+    int height;
+    MLV_Color color;
+    MLV_Color over_color;
+    char* text;
+    MLV_Font* font;
+};
 
 void generateGridFrame(struct SuperSudoku grids);
 void startDrawUpdate(struct SuperSudoku grids);
-void* updateDraw(void* arg);
+int updateDraw(struct SuperSudoku grids);
 int getSlotFromCoordinates(int x, int y, struct SlotLocation *slot);
 void drawMainGrid(struct SuperSudoku grids);
 int getSlotChoice(int mouseX, int mouseY, int* selected_value);
 void freeFrame();
 int getCurrentAction();
+void drawButton(struct MenuButton menuButton);
 
 #endif
