@@ -9,11 +9,12 @@
 #include <unistd.h>
 
 #include "../headers/grid_utility.h"
-#include "../headers/constants.h"
+#include "../headers/grid_generator.h"
+#include "../headers/grid_frame.h"
+
 
 /* Thread pour le timer*/
 #include <pthread.h>
-
 
 /*Fonction permettant de déclencher le début de partie*/
 void startGame()
@@ -22,9 +23,9 @@ void startGame()
 }
 
 /*Fonction permettant de finir la partie en cours*/
-void endGame()
+void endGame(int registerScore)
 {
-    endTimer();
+    endTimer(registerScore);
 }
 
 /*Fonction permettant de récupérer une chaine de caractère correspondant au timer*/
@@ -126,10 +127,10 @@ int playOnGrid(SudokuGrid gameGrid, SudokuGrid forbiddenGrid, int x1, int y1, in
     /* Sinon, on change la valeur de la case */
     gameGrid[gridOffset(x1,y1,x2,y2)] = value;
 
-    consolePrintMainGrid(gameGrid);
+    /*consolePrintMainGrid(gameGrid);*/
     
     /* On vérifie si la partie est terminée*/
-    if(isGridFull(gameGrid)) endGame();
+    if(isGridFull(gameGrid)) endGame(1);
 
     return TRUE;
 }
@@ -152,12 +153,29 @@ int isGridCorrect(SudokuGrid gameGrid)
 int isGridFull(SudokuGrid gameGrid)
 {
     int i;
-    consolePrintMainGrid(gameGrid);
     for(i = 0; i < NB_SLOT_SUBGRID*NB_SLOT_SUBGRID; i++) {
         if(gameGrid[i] == 0) return 0;
     }
     return 1;
 }
+
+/*Restart sudoku game with random grid*/
+void restartGame(struct SuperSudoku oldGrid)
+{
+    int i;
+    struct SuperSudoku newGrid = generateMainGrid();
+
+
+    for(i = 0; i < NB_SLOT_SUBGRID*NB_SUBGRID; i++)
+    {
+        oldGrid.gameGrid[i] = newGrid.gameGrid[i];
+        oldGrid.forbiddenGrid[i] = newGrid.forbiddenGrid[i];
+    }
+    endGame(0);
+    startGame();
+}
+
+
 
 /* 
     Cette fonction prend en argument une grille générée avec GenerateMainGrid pour l'afficher à la console

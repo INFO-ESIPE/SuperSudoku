@@ -1,3 +1,9 @@
+/*
+	Programmation C - TP7
+	Max Ducoudré - INFO1
+    Fonctions permettant de gérer la partie graphique de la grille
+*/
+
 #ifndef _GRIDFRAME_
 #define _GRIDFRAME_
 
@@ -28,6 +34,7 @@
 #define SLOT_SIZE GRID_WIDTH/10
 
 
+/*Couleurs MLV*/
 #define WHITE MLV_rgba(255,255,255,255)
 #define BLACK MLV_rgba(0,0,0,255)
 #define GRAY MLV_rgba(128,128,128,255)
@@ -44,6 +51,7 @@
 #define ACTION_END -1
 #define WAIT_TIME_MILLISEC 13
 
+/*Permet de stocker les données d'un bouton*/
 struct MenuButton {
     int x;
     int y;
@@ -55,14 +63,23 @@ struct MenuButton {
     MLV_Font* font;
 };
 
+/*Ouverture et fermeture de la fenêtre graphique*/
 void generateGridFrame(struct SuperSudoku grids);
+void freeFrame();
+
+/*Fonctions permettant de faire le dessin sufr la fenêtre*/
 void startDrawUpdate(struct SuperSudoku grids);
 int updateDraw(struct SuperSudoku grids);
-int getSlotFromCoordinates(int x, int y, struct SlotLocation *slot);
 void drawMainGrid(struct SuperSudoku grids);
+
+/*Fonctions permettant de récupérer des informations depuis la fenêtre graphique*/
+int getSlotFromCoordinates(int x, int y, struct SlotLocation *slot);
 int getSlotChoice(int mouseX, int mouseY, int* selected_value);
-void freeFrame();
 int getCurrentAction();
+
+/*Fonctions permettant de gérer les boutons*/
 void drawButton(struct MenuButton menuButton);
+struct MenuButton getMenuButtons(int button_id);
+void setDrawScore(int rawScoresStatus);
 
 #endif

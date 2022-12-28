@@ -1,3 +1,9 @@
+/*
+	Programmation C - TP7
+	Max Ducoudré - INFO1
+    Fonctions permettant de gérer le clique et la position de la souris lors de la partie
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -57,6 +63,7 @@ void* mouseClick(void* args)
                 
                 if(forbiddenGrid[gridOffset(slot.x1,slot.y1,slot.x2,slot.y2)] == 0) /* Si cette case n'a pas de valeur par défaut alors ont peut la selectionner */ {
                     currentSelectedSlot = slot; /*On active la séléction*/
+                    setDrawScore(0);
                 } else {
                     emptyCurrentSelectedSlot(); /*Retirer la selection*/
                 }
@@ -68,7 +75,7 @@ void* mouseClick(void* args)
                 if(playOnGrid(gameGrid, forbiddenGrid, currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x2, currentSelectedSlot.y2, selected_value))
                 {
                     /*Sucess play grid*/
-                    printf("Play (%d,%d,%d,%d) value %d\n", currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x2, currentSelectedSlot.y2, selected_value);
+                    /*printf("Play (%d,%d,%d,%d) value %d\n", currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x2, currentSelectedSlot.y2, selected_value);*/
                     emptyCurrentSelectedSlot();/* On enlève la selection*/
                 }
                 else
@@ -83,10 +90,38 @@ void* mouseClick(void* args)
 
         } else{
             /* Gestion de la souris lors de la fin de la partie */
-            printf("Click end game\n");
         }
+        
+        /* On regarde le clique sur les boutons du menu*/
+        if(listen_button(mouseX, mouseY, getMenuButtons(0))) setDrawScore(1); /*Afficher les scores*/  
+
+        /*Trouve la solution de la  grille */
+        if(listen_button(mouseX, mouseY, getMenuButtons(1))) {
+            resolveGrid(grids,0,0);           
+            endGame(0);
+        }
+
+        /*Met fin au programme*/
+        if(listen_button(mouseX, mouseY, getMenuButtons(2))) {
+            kill(getppid(), SIGINT);
+            exit(0);
+        }
+
+        /*Permet de relancer la partie*/
+        if(listen_button(mouseX, mouseY, getMenuButtons(3))) restartGame(grids);        
+
     }
     pthread_exit(NULL);
+}
+
+/*Fonction qui renvoie 1 si la souris clique sur le bouton en argument, sinon 0*/
+int listen_button(int mouseX, int mouseY, struct MenuButton button)
+{       
+    if(mouseX > button.x && mouseX < button.x+button.width &&
+       mouseY  > button.y && mouseY < button.y+button.height)
+        return 1;
+
+    return 0;  
 }
 
 

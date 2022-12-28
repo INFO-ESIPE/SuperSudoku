@@ -1,9 +1,13 @@
+/*
+	Programmation C - TP7
+	Max Ducoudré - INFO1
+    Fonctions permettant de gérer la génération de la grille
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "../headers/grid_generator.h"
-#include "../headers/grid_utility.h"
-#include "../headers/constants.h"
 
 /*
     Cette fonction renvoi un tableau contenant une grille de sudoku à résoudre

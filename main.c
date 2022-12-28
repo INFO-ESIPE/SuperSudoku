@@ -1,3 +1,9 @@
+/*
+	Programmation C - TP7
+	Max Ducoudré - INFO1
+    Main du SuperSudoku
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,14 +20,9 @@
 /* Header permettant de gérer l'affichage graphique*/
 #include "headers/grid_frame.h"
 
-
-
-
 /* Permet de récupérer les signaux*/
 #include <signal.h>
 #include <unistd.h>
-
-#define NO_FILE "NO_FILE_PATH"
 
 struct SuperSudoku mainSuperSudoku;
 
@@ -36,8 +37,7 @@ int main(int argc, char* argv[])
 	srand(time(NULL)); /* Permet de gérer l'aléatoire pour les besoins futurs du programme*/
     signal(SIGINT, freeMemory); /*Permet de finir le programme proprement quand un signal SIGINT est envoyé par l'utilisateur*/
     checkArguments(argc, argv); /*Fonction permettant de vérifier les options/arguments du programme*/
-        
-        
+
     /* Fin du programme */
     return EXIT_SUCCESS;
 }
@@ -47,7 +47,7 @@ void printUsage(char* exName)
 {
     printf("Usage & options:\n");
     printf("%s                       Start sudoku with random grid.\n",exName);
-    printf("%s -g <gridFilePath>     Start sudoku with grid specified in file gridFilePath.\n", exName);
+    printf("%s -g <grid_file_path>   Start sudoku with grid specified in file gridFilePath.\n", exName);
     exit(EXIT_FAILURE);
 }
 
@@ -74,25 +74,13 @@ void prepareGame(char* filePath)
     else  mainSuperSudoku = generateMainGridFromFile(filePath); /* Fonction pour générer une grille à partir d'un fichier*/
     
     startGame(); /* Lancement de la partie*/
-    
-    printf("\n       Grille de départ\n");
-    consolePrintMainGrid(mainSuperSudoku.gameGrid);
-
-    printf("\n       Grille d'interdits\n");
-    consolePrintMainGrid(mainSuperSudoku.forbiddenGrid);
-    
-
-    /* Gestion de l'affichage graphique */
-    generateGridFrame(mainSuperSudoku); /*fonction bloquante*/
+    generateGridFrame(mainSuperSudoku); /*fonction bloquante permettant l'affichage graphique*/
 }
 
 /*Libère la mémoire utilisée durant le programme*/
 void freeMemory()
 {
-    printf("End of sudoku\n");
     freeGrids(mainSuperSudoku);
-    printf("freeGrids()\n");
     freeFrame();
-    printf("freeFrame()\n");
-
+    exit(0);
 }

@@ -1,3 +1,9 @@
+/*
+	Programmation C - TP7
+	Max Ducoudré - INFO1
+    Fonctions permettant de gérer la partie graphique de la grille
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,11 +12,16 @@
 
 int drawNumSelect = FALSE; /* Variable permettant de dire si oui ou non on dessine la grille de séléction de numéro */
 int action = ACTION_EMPTY; /*Représente l'action en cours sur une partie de sudoku*/
+int drawScores = FALSE;/*Variable permettant de dire si on dessine le tableau des scores*/
+
+/*Bouttons du menu*/
+struct MenuButton scoreButton, autoresolveButton, restartButton, exitButton;
+
 
 /* Fonction permettant de générer la fenêtre contenant la grille de sudoku*/
 void generateGridFrame(struct SuperSudoku grids)
 {
-    MLV_create_window(GAME_NAME, "resources/Sudoku.png", WIN_WIDTH, WIN_HEIGHT); /* Création de la fenêtre*/
+    MLV_create_window(GAME_NAME,  "resources/Sudoku.png", WIN_WIDTH, WIN_HEIGHT); /* Création de la fenêtre*/
     startListenMouse(grids);  /*Ecoute le clique de la souris*/
     startDrawUpdate(grids); /* On actualise la grid en temps réel en fonction de la modification des données dans stockés dans SuperSoduku*/
 
@@ -135,10 +146,11 @@ int updateDraw(struct SuperSudoku grids)
     /*Variable pour le dessin du timer*/
     char timer_buffer[255];
 
+    /*Variable pour le dessin du tableau du score*/
+    char score_buffer[255];
 
-    /*Initialisation des bouttons*/
-    struct MenuButton scoreButton, autoresolveButton, restartButton, exitButton;
-
+    /*Manage score*/
+    struct ScoreData scores[255];
     scoreButton.x = MARGIN_LEFT + (NB_SLOT_SUBGRID+1) * SLOT_SIZE;  
     scoreButton.y = MARGIN_TOP + (NB_SLOT_SUBGRID-2) * SLOT_SIZE;  
     scoreButton.width = SLOT_SIZE*2;
@@ -162,7 +174,6 @@ int updateDraw(struct SuperSudoku grids)
     exitButton.text = "Exit";
 
 
-    printf("TEST = %d\n", grids.gameGrid[gridOffset(1,1,1,1)]);
 
 
 
@@ -267,7 +278,7 @@ int updateDraw(struct SuperSudoku grids)
         }
 
         /*--------Section dessin de la grille de séléction--------*/
-        if(!slotIsEmpty(currentSelectedSlot)) /* On vérifie que le joueur a séléctionné une case*/
+        if(!slotIsEmpty(currentSelectedSlot) && !drawScores) /* On vérifie que le joueur a séléctionné une case*/
         {
             /* On met en surbrillance la case séléctionnée*/
             MLV_draw_rectangle(tmp_slot_sur_X, tmp_slot_sur_Y, tmp_slot_sur_Width, tmp_slot_sur_Height, ORANGE);
@@ -372,6 +383,38 @@ int updateDraw(struct SuperSudoku grids)
         drawButton(autoresolveButton);
         drawButton(exitButton);
         drawButton(restartButton);
+
+
+        /*Dessin du tableau des scores*/
+        if(drawScores)
+        {   
+            readScore(scores, SCORE_TO_DISPLAY);
+            MLV_draw_text_with_font(
+                MARGIN_LEFT + SLOT_SIZE*10, 
+                MARGIN_TOP, 
+                "High scores", 
+                font,
+                BLACK);
+
+            for(i = 0; scores[i].time != -1; i++)
+            {
+                /*printf("%d\n", scores[i].time);*/
+                sprintf(score_buffer, "%d:%d - %s (%s)", (scores[i].time/60), (scores[i].time%60), scores[i].grid, scores[i].date);
+                MLV_draw_text_with_font(
+                    MARGIN_LEFT + SLOT_SIZE*10, 
+                    MARGIN_TOP+ ((i+1)*30), 
+                    score_buffer, 
+                    font,
+                    BLACK);
+            }
+            
+
+            
+
+                
+        }
+
+
         /* On actualise l'affichage avec les dernières modifications*/
         MLV_actualise_window();
     }
@@ -433,4 +476,19 @@ void freeFrame()
     action = ACTION_END;
     freeListener();
     MLV_free_window();
+}
+
+
+struct MenuButton getMenuButtons(int button_id)
+{
+    if(button_id == 0) return scoreButton;
+    else if(button_id == 1) return autoresolveButton;
+    else if(button_id == 2) return exitButton;
+    return restartButton;
+    
+}
+
+void setDrawScore(int rawScoresStatus)
+{
+    drawScores = rawScoresStatus;
 }
