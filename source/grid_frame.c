@@ -147,12 +147,10 @@ int updateDraw(struct SuperSudoku grids)
     /* Chargement d'une nouvelle police d'écriture*/
     MLV_Font* font = MLV_load_font("resources/Georgia.ttf" , 20);
 
-
     /*Variable pour le dessin du timer*/
     char timer_buffer[1000];
     char secStr[3];
     char minStr[10];
-
 
     /*Buffer pour l'image de fin*/
     MLV_Image* end_gif;
@@ -185,9 +183,6 @@ int updateDraw(struct SuperSudoku grids)
     exitButton.x += SLOT_SIZE*2 + 10;
     exitButton.y += SLOT_SIZE*0.8 + 10;
     exitButton.text = "Exit";
-
-
-
 
 
 
@@ -271,7 +266,6 @@ int updateDraw(struct SuperSudoku grids)
                                     SLOT_SIZE+1,
                                     SLOT_SIZE+1, 
                                     GREEN);
-
                             }
                     }
             /* On met en surbrillance la case survolée*/
@@ -378,7 +372,6 @@ int updateDraw(struct SuperSudoku grids)
             }
         }
 
-
         /* Dessin du timer */
         getTimerString(timer_buffer);
         MLV_draw_text_with_font(
@@ -387,8 +380,6 @@ int updateDraw(struct SuperSudoku grids)
             timer_buffer, 
             font,
             BLACK);
-
-
 
         /*Dessin qu'à la fin de la partie*/
         if(isGridFull(gameGrid))
@@ -421,15 +412,12 @@ int updateDraw(struct SuperSudoku grids)
         }
 
 
-	
-
         /*Dessin du menu*/
         /*Scores/autoresolve/restart/fin*/
         drawButton(scoreButton);
         drawButton(autoresolveButton);
         drawButton(exitButton);
         drawButton(restartButton);
-
 
         /*Dessin du tableau des scores*/
         if(drawScores)
@@ -441,10 +429,6 @@ int updateDraw(struct SuperSudoku grids)
                 "High scores", 
                 font,
                 BLACK);
-
-
-
-
 
             for(i = 0; scores[i].time != -1; i++)
             {

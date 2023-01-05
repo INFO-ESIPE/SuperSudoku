@@ -45,7 +45,6 @@ int isGridFull(SudokuGrid gameGrid);
 int isSlotCompatibleInGrid(SudokuGrid grid, int x1, int y1, int x2, int y2, int value);
 int playOnGrid(SudokuGrid gameGrid, SudokuGrid forbiddenGrid, int x1, int y1, int x2, int y2, int value);
 
-
 void startGame();
 void endGame(int registerScore);
 void restartGame(struct SuperSudoku oldGrid);

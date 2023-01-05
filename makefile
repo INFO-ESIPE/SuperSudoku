@@ -38,3 +38,7 @@ clean :
 run : ${OBJ}
 	${CC} -o ${OUT} ${OBJ} ${CFLAGS} ${LDFLAGS}
 	./${OUT}
+
+runGrid : ${OBJ}
+	${CC} -o ${OUT} ${OBJ} ${CFLAGS} ${LDFLAGS}
+	./${OUT} -g data/grid6.txt
