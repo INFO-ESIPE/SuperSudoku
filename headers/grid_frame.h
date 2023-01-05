@@ -20,6 +20,9 @@
 /* Thread pour actualiser l'affichage*/
 #include <pthread.h>
 
+/* Nécéssaire pour calculer la position des feux d'artifice à la fin d'une partie*/
+#include <math.h>
+
 /* Constantes graphique */
 #define GAME_NAME "SuperSudoku"
 #define WIN_WIDTH 1000
@@ -50,6 +53,15 @@
 #define ACTION_EMPTY 0
 #define ACTION_END -1
 #define WAIT_TIME_MILLISEC 13
+
+
+
+/*Constante pour l'animation de fin de partie*/
+#define WAIT_BETWEEN_FRAME 5
+#define FRAME_NB 21
+#define GIF_DIRECTORY "resources/fireworks/"
+#define GIF_NB 8
+
 
 /*Permet de stocker les données d'un bouton*/
 struct MenuButton {

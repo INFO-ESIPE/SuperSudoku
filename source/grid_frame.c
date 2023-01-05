@@ -14,6 +14,10 @@ int drawNumSelect = FALSE; /* Variable permettant de dire si oui ou non on dessi
 int action = ACTION_EMPTY; /*Représente l'action en cours sur une partie de sudoku*/
 int drawScores = FALSE;/*Variable permettant de dire si on dessine le tableau des scores*/
 
+/*Variable permettant de gérer l'animation de victoire & sa vitesse*/
+int animation_end_count = 1;
+int animation_wait = 0;
+
 /*Bouttons du menu*/
 struct MenuButton scoreButton, autoresolveButton, restartButton, exitButton;
 
@@ -143,11 +147,20 @@ int updateDraw(struct SuperSudoku grids)
     /* Chargement d'une nouvelle police d'écriture*/
     MLV_Font* font = MLV_load_font("resources/Georgia.ttf" , 20);
 
+
     /*Variable pour le dessin du timer*/
-    char timer_buffer[255];
+    char timer_buffer[1000];
+    char secStr[3];
+    char minStr[10];
+
+
+    /*Buffer pour l'image de fin*/
+    MLV_Image* end_gif;
+    char gif_path_buff[255];
 
     /*Variable pour le dessin du tableau du score*/
     char score_buffer[255];
+    char score_timer_buffer[50];
 
     /*Manage score*/
     struct ScoreData scores[255];
@@ -377,6 +390,39 @@ int updateDraw(struct SuperSudoku grids)
 
 
 
+        /*Dessin qu'à la fin de la partie*/
+        if(isGridFull(gameGrid))
+        {
+            /*Permet de gérer la vitesse de l'animation*/
+            animation_wait++;
+            if(animation_wait == WAIT_BETWEEN_FRAME) {
+                animation_wait = 0;
+                animation_end_count++;
+                if(animation_end_count == FRAME_NB+1) animation_end_count = 1;
+            }
+ 
+            /*Dessin du feu d'artifice final*/
+            for(k = 1; k <= GIF_NB; k++)
+            {
+                if((animation_end_count+k+1) == (FRAME_NB+1))
+                    sprintf(gif_path_buff, "%sframe-%d.gif", GIF_DIRECTORY, 1);
+                else 
+                    sprintf(gif_path_buff, "%sframe-%d.gif", GIF_DIRECTORY, (animation_end_count+k+1));
+
+                end_gif = MLV_load_image(gif_path_buff);
+                if(end_gif)
+                {
+                    MLV_draw_image(end_gif, (k%3)*(SLOT_SIZE*3)+MARGIN_LEFT-10, (k%2)*(SLOT_SIZE*5));
+                    MLV_free_image(end_gif);
+                } 
+            }
+
+
+        }
+
+
+	
+
         /*Dessin du menu*/
         /*Scores/autoresolve/restart/fin*/
         drawButton(scoreButton);
@@ -396,36 +442,38 @@ int updateDraw(struct SuperSudoku grids)
                 font,
                 BLACK);
 
+
+
+
+
             for(i = 0; scores[i].time != -1; i++)
             {
+
+                if(scores[i].time/60 >= 10) sprintf(minStr, "%d", scores[i].time/60);
+                else sprintf(minStr, "0%d",  scores[i].time/60);
+
+                if(scores[i].time%60 >= 10) sprintf(secStr, "%d", scores[i].time%60);
+                else sprintf(secStr, "0%d", scores[i].time%60);
+
+                sprintf(score_timer_buffer, "%s:%s", minStr, secStr);
+
                 /*printf("%d\n", scores[i].time);*/
-                sprintf(score_buffer, "%d:%d - %s (%s)", (scores[i].time/60), (scores[i].time%60), scores[i].grid, scores[i].date);
+                sprintf(score_buffer, "%s - %s (%s)", score_timer_buffer, scores[i].grid, scores[i].date);
                 MLV_draw_text_with_font(
                     MARGIN_LEFT + SLOT_SIZE*10, 
                     MARGIN_TOP+ ((i+1)*30), 
                     score_buffer, 
                     font,
                     BLACK);
-            }
-            
-
-            
-
-                
+            }                
         }
+
 
 
         /* On actualise l'affichage avec les dernières modifications*/
         MLV_actualise_window();
     }
 
-
-
-    /*Dessin qu'à la fin de la partie*/
-    if(isGridFull(gameGrid))
-    {
-        
-    }
 
     /* On libère la mémoire prise par la font et on finit le thread*/
     /*MLV_free_font(font);*/

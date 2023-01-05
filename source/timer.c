@@ -124,9 +124,10 @@ void readScore(struct ScoreData* scores, int scoresCount)
         gridNameBuffer[j] = '\0';
         flag = 0;
 
-        scores[index].grid = "grid1"; 
+        scores[index].grid = gridNameBuffer; 
         /*sprintf(scores[index].grid, "%s", gridNameBuffer);*/
         /*for(k = 0; gridNameBuffer[k] != '\0'; k++) scores[index].grid[k] = gridNameBuffer[k];*/
+        
         for(k = 0; k < j; k++) gridNameBuffer[k] = '\0';
         j=0;
 
@@ -160,9 +161,9 @@ void readScore(struct ScoreData* scores, int scoresCount)
         dateBuffer[j-1] = '\0';
         flag = 0;
 
-        
+
         /*scores[index].date = dateBuffer;*/
-        scores[index].date = "00/00/00";
+        scores[index].date = dateBuffer;
         for(k = 0; k < j; k++) dateBuffer[k] = '\0';
         j=0;
 
