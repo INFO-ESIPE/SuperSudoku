@@ -13,8 +13,6 @@
 /*Fonction permettant de résoudre la grille de sudoku*/
 int resolveGrid(struct SuperSudoku grids, int x, int y)
 {
-    /*printf("%d = %d\n", grids.gameGrid[gridOffset(0,0,0,0)], grids.gameGrid[gridOffset2D(0,0)]);*/
-    /*playOnGrid(grids.gameGrid, grids.forbiddenGrid,0,0,0,0,5);*/
     int k;
     if (x == 9 - 1 && y == 9) return 1;
     if(y == 9) {

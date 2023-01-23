@@ -1,3 +1,4 @@
+#Constantes :
 SP=source/
 HD=headers/
 BLD=build/
@@ -7,9 +8,12 @@ OBJ=${BLD}main.o ${BLD}grid_generator.o ${BLD}grid_utility.o ${BLD}grid_frame.o 
 LDFLAGS=-lMLV -lm 
 OUT=SuperSudoku
 
+
+#Règle pour tout compiler
 all: ${OBJ}
 	${CC} -o ${OUT} ${OBJ} ${CFLAGS} ${LDFLAGS} 
 
+#Règles de dépendances des fichiers sources :
 ${BLD}grid_generator.o: ${SP}grid_generator.c ${SP}grid_utility.c
 	${CC} -c ${SP}grid_generator.c -o ${BLD}grid_generator.o ${CFLAGS} 
 
@@ -31,11 +35,17 @@ ${BLD}timer.o: ${SP}timer.c
 ${BLD}main.o: main.c ${SP}grid_generator.c ${SP}grid_utility.c ${SP}grid_frame.c 
 	${CC} -c main.c -o ${BLD}main.o ${CFLAGS} 
 
+#Règle pour effacer les fichiers binaires
 clean :
 	rm ${BLD}*
 	rm ${OUT}
 
+#Règle pour lancer avec une grille en argument (grid3.txt)
 run : ${OBJ}
 	${CC} -o ${OUT} ${OBJ} ${CFLAGS} ${LDFLAGS}
 	./${OUT}  -g data/grid3.txt
 
+#Règle pour lancer avec une grille aléatoire
+run_random : ${OBJ}
+	${CC} -o ${OUT} ${OBJ} ${CFLAGS} ${LDFLAGS}
+	./${OUT} 

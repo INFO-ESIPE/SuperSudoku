@@ -95,16 +95,15 @@ void readScore(struct ScoreData* scores, int scoresCount)
     int lineCount = 0;
     int flag = 0;
     char line[256];
-    char gridNameBuffer[255];
-    char dateBuffer[255];
-    char timeBuffer[255];
+    char gridNameBuffer[30];
+    char dateBuffer[30];
+    char timeBuffer[30];
     FILE *file;
-
 
     file = fopen(SCORE_FILE, "r");
     if ( file == NULL ) {
         printf("Can't open score file !\n");
-        scores[0].grid = "Can't open score file";
+        strcpy(scores[0].grid, "Can't open score file");
         return;
     }
 
@@ -124,10 +123,8 @@ void readScore(struct ScoreData* scores, int scoresCount)
         gridNameBuffer[j] = '\0';
         flag = 0;
 
-        scores[index].grid = gridNameBuffer; 
-        /*sprintf(scores[index].grid, "%s", gridNameBuffer);*/
-        /*for(k = 0; gridNameBuffer[k] != '\0'; k++) scores[index].grid[k] = gridNameBuffer[k];*/
-        
+
+        strcpy(scores[index].grid, gridNameBuffer);
         for(k = 0; k < j; k++) gridNameBuffer[k] = '\0';
         j=0;
 
@@ -161,14 +158,13 @@ void readScore(struct ScoreData* scores, int scoresCount)
         dateBuffer[j-1] = '\0';
         flag = 0;
 
+        strcpy(scores[index].date, dateBuffer);
 
-        /*scores[index].date = dateBuffer;*/
-        scores[index].date = dateBuffer;
         for(k = 0; k < j; k++) dateBuffer[k] = '\0';
         j=0;
 
-
         index++;
+
         if(index > SCORE_TO_DISPLAY) break;
     }
     scores[index].time = -1;

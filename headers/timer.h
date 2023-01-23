@@ -19,8 +19,8 @@ struct TimerData {
 
 struct ScoreData {
     int time;
-    char* grid;
-    char* date;
+    char grid[40];
+    char date[40];
 };
 
 void startTimer();

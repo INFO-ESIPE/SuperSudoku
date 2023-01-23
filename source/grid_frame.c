@@ -9,7 +9,6 @@
 
 #include "../headers/grid_frame.h"
 
-
 int drawNumSelect = FALSE; /* Variable permettant de dire si oui ou non on dessine la grille de séléction de numéro */
 int action = ACTION_EMPTY; /*Représente l'action en cours sur une partie de sudoku*/
 int drawScores = FALSE;/*Variable permettant de dire si on dessine le tableau des scores*/
@@ -28,22 +27,6 @@ void generateGridFrame(struct SuperSudoku grids)
     MLV_create_window(GAME_NAME,  "resources/Sudoku.png", WIN_WIDTH, WIN_HEIGHT); /* Création de la fenêtre*/
     startListenMouse(grids);  /*Ecoute le clique de la souris*/
     startDrawUpdate(grids); /* On actualise la grid en temps réel en fonction de la modification des données dans stockés dans SuperSoduku*/
-
-    /* On boucle jusqu'à la fin du jeux
-    Cette boucle nous permet de récupérer l'action du joueur*/
-    /*
-    while (action != ACTION_END)
-    {
-        if(action == ACTION_EMPTY)
-        {
-            MLV_wait_milliseconds(WAIT_TIME_MILLISEC);
-
-            
-            if(isGridFull(grids.gameGrid)) {}
-            
-        }
-    }
-    */
 }
 
 /*
@@ -119,8 +102,7 @@ int getSlotFromCoordinates(int x, int y, struct SlotLocation *slot)
 /*Fonction commençant le thread d'actualisation de l'affichage*/
 void startDrawUpdate(struct SuperSudoku grids)
 {
-    /*pthread_t threadDrawID;*/
-    /*pthread_create(&threadDrawID, NULL, &updateDraw, &grids);*/
+    
     updateDraw(grids);
 }
 
@@ -440,8 +422,7 @@ int updateDraw(struct SuperSudoku grids)
                 else sprintf(secStr, "0%d", scores[i].time%60);
 
                 sprintf(score_timer_buffer, "%s:%s", minStr, secStr);
-
-                /*printf("%d\n", scores[i].time);*/
+                
                 sprintf(score_buffer, "%s - %s (%s)", score_timer_buffer, scores[i].grid, scores[i].date);
                 MLV_draw_text_with_font(
                     MARGIN_LEFT + SLOT_SIZE*10, 

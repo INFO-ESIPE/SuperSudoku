@@ -16,11 +16,8 @@ struct SuperSudoku grids;
 void startListenMouse(struct SuperSudoku superGrids)
 {
     pthread_t threadMouseID;
-    /*pthread_t threadMouseOverID;*/
     grids = superGrids;
-
     pthread_create(&threadMouseID, NULL, &mouseClick, &grids);
-   /* pthread_create(&threadMouseOverID, NULL, &mouseOver, &grids);*/
 }
 
 
@@ -46,7 +43,6 @@ void* mouseClick(void* args)
     int mouseY;
     int selected_value;
     struct SlotLocation slot;
-    /*struct SuperSudoku *grids = args;*/
     SudokuGrid forbiddenGrid = grids.forbiddenGrid;
     SudokuGrid gameGrid = grids.gameGrid;
 
@@ -75,7 +71,6 @@ void* mouseClick(void* args)
                 if(playOnGrid(gameGrid, forbiddenGrid, currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x2, currentSelectedSlot.y2, selected_value))
                 {
                     /*Sucess play grid*/
-                    /*printf("Play (%d,%d,%d,%d) value %d\n", currentSelectedSlot.x1, currentSelectedSlot.y1, currentSelectedSlot.x2, currentSelectedSlot.y2, selected_value);*/
                     emptyCurrentSelectedSlot();/* On enlève la selection*/
                 }
                 else
