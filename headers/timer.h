@@ -23,6 +23,7 @@ struct ScoreData {
     char date[40];
 };
 
+
 void startTimer();
 struct TimerData endTimer(int saveScore);
 struct TimerData getTimer();
